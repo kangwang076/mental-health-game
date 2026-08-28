@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>心理健康星球探险</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2a37;
+      --muted: #5f6f83;
+      --paper: #f7fbff;
+      --line: #d6e3ef;
+      --sky: #dff3ff;
+      --mint: #c8f3df;
+      --sun: #ffd166;
+      --coral: #ff8a7a;
+      --blue: #4f8cff;
+      --green: #35b779;
+      --warning: #ef8f2f;
+      --danger: #df5b57;
+      --shadow: 0 18px 40px rgba(31, 42, 55, .14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(255, 209, 102, .35) 0 90px, transparent 92px),
+        linear-gradient(135deg, #edf8ff 0%, #f7fbff 42%, #effaf3 100%);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1120px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 22px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 18px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: conic-gradient(from 190deg, var(--sun), #ffe8a7, var(--mint), var(--blue), var(--sun));
+      border: 3px solid rgba(255, 255, 255, .9);
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .badge::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 8px;
+      border: 3px solid rgba(31, 42, 55, .18);
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-radius: 50%;
+      left: 13px;
+      top: 20px;
+      transform: rotate(-18deg);
+    }
+
+    h1, h2, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.55rem, 3vw, 2.5rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .96rem;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .quiet-button, .primary-button {
+      border: 0;
+      border-radius: 8px;
+      min-height: 42px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+
+    .quiet-button {
+      background: rgba(255, 255, 255, .78);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .primary-button {
+      background: var(--blue);
+      color: white;
+      box-shadow: 0 10px 22px rgba(79, 140, 255, .28);
+    }
+
+    .quiet-button:hover, .primary-button:hover, .choice:hover {
+      transform: translateY(-1px);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .side, .stage {
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid rgba(214, 227, 239, .92);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .side {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .map-title {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .path {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .planet {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #e8f0f7;
+      border: 2px solid white;
+      color: var(--muted);
+      font-weight: 800;
+      box-shadow: inset 0 -10px 16px rgba(31, 42, 55, .08);
+    }
+
+    .planet.done {
+      background: var(--mint);
+      color: #15593a;
+    }
+
+    .planet.current {
+      background: var(--sun);
+      color: #6f4c00;
+      outline: 3px solid rgba(255, 209, 102, .35);
+    }
+
+    .meter-wrap {
+      display: grid;
+      gap: 8px;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .meter {
+      height: 14px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8eef5;
+    }
+
+    .meter > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--sun), var(--coral));
+      transition: width .25s ease;
+    }
+
+    .dimension-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dimension {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(247, 251, 255, .7);
+    }
+
+    .dimension strong {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: .92rem;
+    }
+
+    .mini-bar {
+      margin-top: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #e8eef5;
+      overflow: hidden;
+    }
+
+    .mini-bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--blue);
+      transition: width .25s ease;
+    }
+
+    .note {
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff8df;
+      color: #76530e;
+      font-size: .9rem;
+      line-height: 1.55;
+      border: 1px solid #ffe6a8;
+    }
+
+    .stage {
+      min-height: 620px;
+      padding: clamp(18px, 3vw, 34px);
+      display: grid;
+      align-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .45;
+    }
+
+    .cloud {
+      position: absolute;
+      width: 160px;
+      height: 44px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .9);
+      box-shadow: 40px -10px 0 8px rgba(255, 255, 255, .9), 88px 4px 0 0 rgba(255, 255, 255, .9);
+      animation: drift 18s linear infinite;
+    }
+
+    .cloud.one {
+      top: 70px;
+      left: -220px;
+    }
+
+    .cloud.two {
+      top: 210px;
+      left: -320px;
+      animation-delay: -8s;
+      transform: scale(.76);
+    }
+
+    @keyframes drift {
+      to { transform: translateX(1320px); }
+    }
+
+    .panel {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 18px;
+    }
+
+    .intro-visual {
+      height: 190px;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, transparent 0 58%, rgba(53, 183, 121, .22) 59% 100%),
+        radial-gradient(circle at 50% 42%, #fff5bc 0 52px, #ffd166 54px 78px, transparent 80px),
+        linear-gradient(135deg, #bde9ff, #f3fbff);
+      border: 1px solid rgba(214, 227, 239, .9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intro-visual::before,
+    .intro-visual::after {
+      content: "";
+      position: absolute;
+      bottom: 26px;
+      width: 130px;
+      height: 70px;
+      border-radius: 65px 65px 10px 10px;
+      background: #74cc97;
+      box-shadow: 0 20px 0 #5db983;
+    }
+
+    .intro-visual::before {
+      left: 14%;
+    }
+
+    .intro-visual::after {
+      right: 14%;
+      transform: scale(.8);
+      background: #7bb8ef;
+      box-shadow: 0 20px 0 #5f9bd9;
+    }
+
+    .question-kicker {
+      color: var(--blue);
+      font-weight: 800;
+      font-size: .92rem;
+    }
+
+    .question-text {
+      font-size: clamp(1.35rem, 2.8vw, 2.05rem);
+      line-height: 1.25;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .92);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(31, 42, 55, .06);
+      min-height: 68px;
+    }
+
+    .choice-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      background: var(--sky);
+      color: #1b5b84;
+    }
+
+    .choice small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .result {
+      align-content: start;
+    }
+
+    .result-head {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .medal {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: white;
+      background: var(--green);
+      box-shadow: inset 0 -16px 22px rgba(31, 42, 55, .12), var(--shadow);
+    }
+
+    .status {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: white;
+      font-weight: 800;
+      background: var(--green);
+    }
+
+    .summary {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255, 255, 255, .88);
+      display: grid;
+      gap: 8px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: .94rem;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 820px) {
+      .app {
+        padding: 14px;
+      }
+
+      header, main {
+        display: grid;
+      }
+
+      main {
+        grid-template-columns: 1fr;
+      }
+
+      .stage {
+        min-height: auto;
+      }
+
+      .result-head,
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .medal {
+        width: 94px;
+        height: 94px;
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="badge" aria-hidden="true"></div>
+        <div>
+          <h1>心理健康星球探险</h1>
+          <p class="subtitle">点击最像自己的选择，收集心情能量，完成一次温和的小测评。</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="quiet-button" id="restartTop" type="button">重新开始</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="side" aria-label="游戏进度">
+        <div>
+          <p class="map-title">探险地图</p>
+          <div class="path" id="planetPath"></div>
+        </div>
+
+        <div class="meter-wrap">
+          <div class="meter-label">
+            <span>完成进度</span>
+            <strong id="progressText">0/10</strong>
+          </div>
+          <div class="meter" aria-hidden="true"><span id="progressBar"></span></div>
+        </div>
+
+        <div class="dimension-list" id="dimensionList"></div>
+
+        <p class="note">小提示：这个游戏只能帮助了解最近的心理状态，不能当作医学诊断。如果分数显示需要关注，建议和家长、班主任或学校心理老师聊一聊。</p>
+      </aside>
+
+      <section class="stage" aria-live="polite">
+        <div class="scene" aria-hidden="true">
+          <div class="cloud one"></div>
+          <div class="cloud two"></div>
+        </div>
+
+        <div class="panel" id="introPanel">
+          <div class="intro-visual" aria-hidden="true"></div>
+          <p class="question-kicker">准备出发</p>
+          <h2 class="question-text">你将经过 10 个心情星球。每个星球没有“标准答案”，请选择最符合最近两周自己的情况。</h2>
+          <button class="primary-button" id="startButton" type="button">开始探险</button>
+        </div>
+
+        <div class="panel hidden" id="quizPanel">
+          <p class="question-kicker" id="questionKicker"></p>
+          <h2 class="question-text" id="questionText"></h2>
+          <div class="choices" id="choices"></div>
+        </div>
+
+        <div class="panel result hidden" id="resultPanel">
+          <div class="result-head">
+            <div class="medal" id="medal">A</div>
+            <div>
+              <span class="status" id="statusLabel">状态</span>
+              <h2 class="question-text" id="resultTitle"></h2>
+              <p class="summary" id="resultSummary"></p>
+            </div>
+          </div>
+          <div class="cards" id="resultCards"></div>
+          <div class="result-actions">
+            <button class="primary-button" id="restartResult" type="button">再测一次</button>
+            <button class="quiet-button" id="printResult" type="button">打印结果</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const dimensions = {
+      mood: { label: "情绪阳光", color: "#4f8cff" },
+      friend: { label: "同伴连接", color: "#35b779" },
+      stress: { label: "压力调节", color: "#ef8f2f" },
+      self: { label: "自我力量", color: "#ff8a7a" }
+    };
+
+    const questions = [
+      {
+        text: "早上来到学校时，你通常是什么感觉？",
+        dimension: "mood",
+        choices: [
+          ["比较期待，觉得今天会有有趣的事", 0],
+          ["一般般，来了就开始上课", 1],
+          ["有点不想来，心里闷闷的", 2],
+          ["经常很难受，甚至害怕上学", 3]
+        ]
+      },
+      {
+        text: "遇到作业或考试压力时，你更常怎么做？",
+        dimension: "stress",
+        choices: [
+          ["先做会的，再慢慢解决难的", 0],
+          ["会紧张，但休息一下能继续", 1],
+          ["容易慌，常常拖到很晚", 2],
+          ["压力大到想哭或完全不想做", 3]
+        ]
+      },
+      {
+        text: "当同学邀请你一起玩时，你通常会怎样？",
+        dimension: "friend",
+        choices: [
+          ["愿意加入，也能玩得开心", 0],
+          ["看情况，有时想一个人待着", 1],
+          ["担心自己不受欢迎，不太敢加入", 2],
+          ["经常觉得没人想和我玩", 3]
+        ]
+      },
+      {
+        text: "如果做错了题或被批评，你心里会怎么想？",
+        dimension: "self",
+        choices: [
+          ["这次没做好，下次可以改进", 0],
+          ["会难过一会儿，但能恢复", 1],
+          ["会觉得自己很差，想很久", 2],
+          ["经常觉得自己什么都做不好", 3]
+        ]
+      },
+      {
+        text: "最近两周，你开心或放松的时间多吗？",
+        dimension: "mood",
+        choices: [
+          ["挺多的，常能笑出来", 0],
+          ["有一些，但也会烦", 1],
+          ["不太多，经常提不起劲", 2],
+          ["很少，常常觉得难过或空空的", 3]
+        ]
+      },
+      {
+        text: "和家人、老师沟通困难时，你会怎么做？",
+        dimension: "stress",
+        choices: [
+          ["试着说清楚，也会找合适时间聊", 0],
+          ["会有点怕，但还是能说一点", 1],
+          ["常常憋在心里，不知道怎么开口", 2],
+          ["觉得说了也没用，所以不想说", 3]
+        ]
+      },
+      {
+        text: "在班级里，你觉得自己被接纳的程度是？",
+        dimension: "friend",
+        choices: [
+          ["比较自在，有可以说话的人", 0],
+          ["还可以，但不是每天都自在", 1],
+          ["有点孤单，怕被别人笑", 2],
+          ["经常觉得自己被排斥", 3]
+        ]
+      },
+      {
+        text: "面对新的活动或挑战时，你会怎么想？",
+        dimension: "self",
+        choices: [
+          ["可以试试看，失败也没关系", 0],
+          ["有点担心，但愿意尝试", 1],
+          ["很怕做不好，常想躲开", 2],
+          ["觉得自己一定不行", 3]
+        ]
+      },
+      {
+        text: "晚上睡觉前，你的脑袋通常是什么状态？",
+        dimension: "mood",
+        choices: [
+          ["比较平静，能顺利入睡", 0],
+          ["偶尔想事情，但影响不大", 1],
+          ["常常想很多，睡得不太好", 2],
+          ["经常睡不着或做让人难受的梦", 3]
+        ]
+      },
+      {
+        text: "当心情不好时，你最常怎么照顾自己？",
+        dimension: "stress",
+        choices: [
+          ["找人说说、运动、画画或听音乐", 0],
+          ["先安静一会儿，过后会好些", 1],
+          ["不知道怎么办，只能忍着", 2],
+          ["会做让自己更难受或不安全的事", 3]
+        ]
+      }
+    ];
+
+    const state = {
+      index: 0,
+      answers: [],
+      scores: { mood: 0, friend: 0, stress: 0, self: 0 }
+    };
+
+    const introPanel = document.querySelector("#introPanel");
+    const quizPanel = document.querySelector("#quizPanel");
+    const resultPanel = document.querySelector("#resultPanel");
+    const planetPath = document.querySelector("#planetPath");
+    const progressText = document.querySelector("#progressText");
+    const progressBar = document.querySelector("#progressBar");
+    const dimensionList = document.querySelector("#dimensionList");
+    const questionKicker = document.querySelector("#questionKicker");
+    const questionText = document.querySelector("#questionText");
+    const choicesEl = document.querySelector("#choices");
+
+    function initMap() {
+      planetPath.innerHTML = "";
+      questions.forEach((_, i) => {
+        const item = document.createElement("div");
+        item.className = "planet";
+        item.textContent = i + 1;
+        planetPath.appendChild(item);
+      });
+    }
+
+    function renderSide() {
+      const answered = state.answers.length;
+      progressText.textContent = `${answered}/${questions.length}`;
+      progressBar.style.width = `${answered / questions.length * 100}%`;
+
+      [...planetPath.children].forEach((planet, i) => {
+        planet.className = "planet";
+        if (i < answered) planet.classList.add("done");
+        if (i === state.index && answered < questions.length) planet.classList.add("current");
+      });
+
+      dimensionList.innerHTML = "";
+      Object.entries(dimensions).forEach(([key, info]) => {
+        const max = questions.filter(q => q.dimension === key).length * 3 || 1;
+        const score = state.scores[key];
+        const percent = Math.round(score / max * 100);
+        const div = document.createElement("div");
+        div.className = "dimension";
+        div.innerHTML = `
+          <strong><span>${info.label}</span><span>${percent}%</span></strong>
+          <div class="mini-bar"><span style="width:${percent}%;background:${info.color}"></span></div>
+        `;
+        dimensionList.appendChild(div);
+      });
+    }
+
+    function show(panel) {
+      [introPanel, quizPanel, resultPanel].forEach(el => el.classList.add("hidden"));
+      panel.classList.remove("hidden");
+    }
+
+    function startGame() {
+      state.index = 0;
+      state.answers = [];
+      state.scores = { mood: 0, friend: 0, stress: 0, self: 0 };
+      renderQuestion();
+      show(quizPanel);
+    }
+
+    function renderQuestion() {
+      const q = questions[state.index];
+      questionKicker.textContent = `第 ${state.index + 1} 个星球 · ${dimensions[q.dimension].label}`;
+      questionText.textContent = q.text;
+      choicesEl.innerHTML = "";
+
+      q.choices.forEach(([label, score], choiceIndex) => {
+        const button = document.createElement("button");
+        button.className = "choice";
+        button.type = "button";
+        button.innerHTML = `
+          <span class="choice-mark">${String.fromCharCode(65 + choiceIndex)}</span>
+          <span>${label}<small>点击后前往下一个星球</small></span>
+        `;
+        button.addEventListener("click", () => choose(score, label));
+        choicesEl.appendChild(button);
+      });
+
+      renderSide();
+    }
+
+    function choose(score, label) {
+      const q = questions[state.index];
+      state.answers.push({ question: q.text, answer: label, score, dimension: q.dimension });
+      state.scores[q.dimension] += score;
+      state.index += 1;
+
+      if (state.index >= questions.length) {
+        renderSide();
+        renderResult();
+        show(resultPanel);
+        return;
+      }
+
+      renderQuestion();
+    }
+
+    function getLevel(total) {
+      if (total <= 8) {
+        return {
+          grade: "A",
+          color: "#35b779",
+          label: "状态较好",
+          title: "你的心情能量比较充足",
+          summary: "你最近整体适应得不错，能感受到快乐，也有一些解决问题的方法。继续保持规律作息、运动和表达感受，会让心理能量更稳定。"
+        };
+      }
+      if (total <= 17) {
+        return {
+          grade: "B",
+          color: "#ef8f2f",
+          label: "需要关注",
+          title: "你可能有一些压力正在累积",
+          summary: "你不是“有问题”，而是最近可能遇到了一些让人消耗的事。建议把烦恼说给可信任的大人听，也可以用运动、画画、写心情卡等方式帮助自己放松。"
+        };
+      }
+      return {
+        grade: "C",
+        color: "#df5b57",
+        label: "建议求助",
+        title: "你的心情星球需要更多支持",
+        summary: "结果显示你最近可能经常难过、紧张、孤单或无助。请尽快告诉家长、班主任或学校心理老师，让大人陪你一起处理。遇到不安全的想法或行为时，要马上找身边的大人帮助。"
+      };
+    }
+
+    function dimensionAdvice(key, score) {
+      const max = questions.filter(q => q.dimension === key).length * 3;
+      const percent = score / max;
+      const label = dimensions[key].label;
+
+      if (percent <= .33) return `${label}：表现稳定，可以继续保留让你舒服的好习惯。`;
+      if (percent <= .66) return `${label}：有一些波动，适合多练习表达、休息和求助。`;
+      return `${label}：压力信号比较明显，建议和可信任的大人认真聊一聊。`;
+    }
+
+    function renderResult() {
+      const total = Object.values(state.scores).reduce((sum, n) => sum + n, 0);
+      const level = getLevel(total);
+      const maxTotal = questions.length * 3;
+      document.querySelector("#medal").textContent = level.grade;
+      document.querySelector("#medal").style.background = level.color;
+      document.querySelector("#statusLabel").textContent = level.label;
+      document.querySelector("#statusLabel").style.background = level.color;
+      document.querySelector("#resultTitle").textContent = level.title;
+      document.querySelector("#resultSummary").textContent = `${level.summary} 本次总风险信号为 ${total}/${maxTotal}。`;
+
+      const cards = document.querySelector("#resultCards");
+      cards.innerHTML = "";
+
+      Object.keys(dimensions).forEach(key => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `<h3>${dimensions[key].label}</h3><p>${dimensionAdvice(key, state.scores[key])}</p>`;
+        cards.appendChild(card);
+      });
+
+      const safety = document.createElement("article");
+      safety.className = "card";
+      safety.innerHTML = "<h3>给老师和家长的话</h3><p>请把结果当作沟通线索，而不是给孩子下结论。若孩子持续睡眠差、情绪低落、害怕上学、自我评价很低，或出现伤害自己的表达，应及时联系学校心理老师或专业机构。</p>";
+      cards.appendChild(safety);
+    }
+
+    document.querySelector("#startButton").addEventListener("click", startGame);
+    document.querySelector("#restartTop").addEventListener("click", startGame);
+    document.querySelector("#restartResult").addEventListener("click", startGame);
+    document.querySelector("#printResult").addEventListener("click", () => window.print());
+
+    initMap();
+    renderSide();
+  </script>
+</body>
+</html>
